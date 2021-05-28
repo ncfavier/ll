@@ -1,0 +1,187 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage[british]{babel}
+\usepackage{csquotes}
+\usepackage[margin=1in]{geometry}
+\usepackage{microtype}
+\usepackage[
+    style=alphabetic,
+    sorting=none
+]{biblatex}
+\addbibresource{focalisation.bib}
+\DeclareLabelalphaTemplate{
+    \labelelement{
+        \field[ifnames=1,strwidth=10]{labelname}
+        \field[ifnames=2-,strwidth=1]{labelname}
+    }
+    \labelelement{
+        \field[strwidth=2,strside=right]{year}
+    }
+}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{cmll}
+\usepackage{stmaryrd}
+\usepackage{ebproof}
+\usepackage{xcolor}
+
+\setlength{\parskip}{0.5em}
+
+\newcommand\size[1]{{\lvert #1 \rvert}}
+\newcommand\sem[1]{{\llbracket #1 \rrbracket}}
+\newcommand\biperp{{\perp\perp}}
+\newcommand\triperp{{\perp\perp\perp}}
+\newcommand\vdashfoc{\vdash_\text{foc}}
+\newcommand\vdashfocon[1]{\vdash_{\text{foc}(#1)}}
+\newcommand\Foc{\text{Foc}}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{corollary}{Corollary}[theorem]
+\newtheorem{lemma}[theorem]{Lemma}
+
+\author{Naïm Favier}
+
+\begin{document}
+
+\section{A proof of focalisation}
+
+Let $\vdashfoc \Gamma$ mean ``there is a \textit{focalised} proof of $\vdash \Gamma$'', in the sense of \cite{laurent}.
+
+We define the focalised syntactic phase model as $(M, \bot, \varphi)$ where $M$ is the free commutative monoid over formulas of MALL, $\bot = \{\Gamma \in M \mid\,\vdashfoc \Gamma\}$, and $\varphi(X) = \{X\}^\perp$ for positive atoms $X$. Let $\sem{A}$ be the interpretation of a formula $A$ in this model.
+
+For a formula $A$, let $\size{A}$ denote the number of main negative subformulas in $A$. Define $\Psi_A$ as a $\size{A}$-ary monotonous operator on $\mathcal P(M)$ by induction:
+\begin{itemize}
+    \item $\Psi_A(N) = N$ if $A$ is negative
+    \item $\Psi_X() = \{X^\perp\}$
+    \item $\Psi_{B \otimes C}(B_1, \dots, B_\size{B}, C_1, \dots, C_\size{C}) = \Psi_B(B_1, \dots, B_\size{B}) \cdot \Psi_C(C_1, \dots, C_\size{C})$
+    \item $\Psi_{B \oplus C}(B_1, \dots, B_\size{B}, C_1, \dots, C_\size{C}) = \Psi_B(B_1, \dots, B_\size{B}) \cup \Psi_C(C_1, \dots, C_\size{C})$
+    \item $\Psi_1() = \{\emptyset\}$
+    \item $\Psi_0() = \emptyset$
+\end{itemize}
+
+\begin{lemma}
+    \label{positivity}
+    For any formula A with main negative subformulas $A_1, \dots, A_\size{A}$, $\sem{A} = \Psi_A(\sem{A_1}, \dots, \sem{A_\size{A}})^\biperp$.
+\end{lemma}
+\begin{proof}
+    By induction, using positivity results from \cite[appendix F]{girard}: $(X^\biperp \cdot Y^\biperp)^\biperp = (X \cdot Y)^\biperp$ and $(X^\biperp \cup Y^\biperp)^\biperp = (X \cup Y)^\biperp$.
+    \begin{itemize}
+        \item If $A$ is negative, then $\sem{A} = \sem{A}^\biperp$ because $\sem{A}$ is a fact.
+        \item If $A = X$, then $\sem{X} = \color{red}\{X\}^\perp \subseteq \{X^\perp\}^\biperp${\color{red}, which is equivalent to the atomic cut rule: $$\begin{prooftree}
+            \hypo{\vdashfoc \Gamma, X}
+            \hypo{\vdashfoc X^\perp, \Delta}
+            \infer2{\vdashfoc \Gamma, \Delta}
+        \end{prooftree}$$}
+        {And clearly $\{X\} \subseteq \{X^\perp\}^\perp$, \color{red}hence $\sem{X} = \{X^\perp\}^\biperp$.}
+        \item If $A = B \otimes C$, then \begin{align*}
+            \sem{B \otimes C} &= (\sem{B} \cdot \sem{C})^\biperp \\
+            &= (\Psi_B(\sem{B_1}, \dots, \sem{B_\size{B}})^\biperp \cdot \Psi_C(\sem{C_1}, \dots, \sem{C_\size{C}})^\biperp)^\biperp \\
+            &= (\Psi_B(\sem{B_1}, \dots, \sem{B_\size{B}}) \cdot \Psi_C(\sem{C_1}, \dots, \sem{C_\size{C}}))^\biperp \\
+            &= \Psi_{B \otimes C}(\sem{B_1}, \dots, \sem{B_\size{B}}, \sem{C_1}, \dots, \sem{C_\size{C}})^\biperp
+        \end{align*}
+        \item If $A = B \oplus C$, then \begin{align*}
+            \sem{B \oplus C} &= (\sem{B} \cup \sem{C})^\biperp \\
+            &= (\Psi_B(\sem{B_1}, \dots, \sem{B_\size{B}})^\biperp \cup \Psi_C(\sem{C_1}, \dots, \sem{C_\size{C}})^\biperp)^\biperp \\
+            &= (\Psi_B(\sem{B_1}, \dots, \sem{B_\size{B}}) \cup \Psi_C(\sem{C_1}, \dots, \sem{C_\size{C}}))^\biperp \\
+            &= \Psi_{B \oplus C}(\sem{B_1}, \dots, \sem{B_\size{B}}, \sem{C_1}, \dots, \sem{C_\size{C}})^\biperp
+        \end{align*}
+        \item If $A = 1$ then $\sem{1} = \{\emptyset\}^\biperp$ by definition.
+        \item If $A = 0$ then $\sem{0} = \emptyset^\biperp$ by definition.
+    \end{itemize}
+\end{proof}
+
+\begin{lemma}
+    \label{positive_phase}
+    For any formula A with main negative subformulas $A_1, \dots, A_\size{A}$, $\Psi_A(\{A_1\}^\perp, \dots, \{A_\size{A}\}^\perp) \subseteq \{A\}^\perp$.
+\end{lemma}
+\begin{proof}
+    Let $\vdashfocon{A} A, \Gamma$ mean ``there is a proof of $\vdashfoc A, \Gamma$ in which the last rule introduces the main connective of A'' if $A$ is positive, and $\vdashfoc A, \Gamma$ otherwise.
+    Let $\Foc(A) = \{\Gamma \in M \mid\, \vdashfocon{A} A, \Gamma\}$. Clearly $\Foc(A) \subseteq \{A\}^\perp$.
+
+    We prove by induction on $A$ that $\Psi_A(\Foc(A_1), \dots, \Foc(A_\size{A})) = \Foc(A)$:
+    \begin{itemize}
+        \item If $A$ is negative, the result is trivial.
+        \item If $A = X$, then $\Psi_X() = \{X^\perp\} = \Foc(X)$.
+        \item If $A = B \otimes C$, then we have \begin{align*}
+            \Psi_A(\Foc(A_1), \dots, \Foc(A_\size{A})) &= \Psi_B(\Foc(B_1), \dots, \Foc(B_\size{B})) \cdot \Psi_C(\Foc(C_1), \dots, \Foc(C_\size{C})) \\
+            &= \Foc(B) \cdot \Foc(C)
+        \end{align*} by the induction hypothesis. Moreover,
+        $$\begin{prooftree}
+            \hypo{\vdashfocon{B} B, \Gamma}
+            \hypo{\vdashfocon{C} C, \Delta}
+            \infer2{\vdashfocon{B \otimes C} B \otimes C, \Gamma, \Delta}
+        \end{prooftree}$$
+        And this rule is invertible, hence $\Foc(B) \cdot \Foc(C) = \Foc(B \otimes C)$, from which the result follows.
+        \item If $A = B \oplus C$, then we have \begin{align*}
+            \Psi_A(\Foc(A_1), \dots, \Foc(A_\size{A})) &= \Psi_B(\Foc(B_1), \dots, \Foc(B_\size{B})) \cup \Psi_C(\Foc(C_1), \dots, \Foc(C_\size{C})) \\
+            &= \Foc(B) \cup \Foc(C)
+        \end{align*} by the induction hypothesis. Moreover,
+        $$\begin{prooftree}
+            \hypo{\vdashfocon{B} B, \Gamma}
+            \infer1{\vdashfocon{B \oplus C} B \oplus C, \Gamma, \Delta}
+        \end{prooftree}
+        \quad
+        \begin{prooftree}
+            \hypo{\vdashfocon{C} C, \Delta}
+            \infer1{\vdashfocon{B \oplus C} B \oplus C, \Gamma, \Delta}
+        \end{prooftree}$$
+        And these rules are complete, hence $\Foc(B) \cup \Foc(C) = \Foc(B \oplus C)$, from which the result follows.
+        \item If $A = 1$, clearly $\Psi_1() = \{\emptyset\} = \Foc(1)$.
+        \item If $A = 0$, clearly $\Psi_0() = \emptyset = \Foc(0)$.
+    \end{itemize}
+
+    Since $A_1, \dots, A_\size{A}$ are negative, we have \begin{align*}
+        \Psi_A(\{A_1\}^\perp, \dots, \{A_\size{A}\}^\perp) &= \Psi_A(\Foc(A_1), \dots, \Foc(A_\size{A})) \\
+        &= \Foc(A) \\
+        &\subseteq \{A\}^\perp
+    \end{align*}
+\end{proof}
+
+\begin{lemma}
+    \label{meaning_is_provability}
+    For any formula $A$, $\sem{A} \subseteq \{A\}^\perp$.
+\end{lemma}
+\begin{proof}
+    By induction:
+    \begin{itemize}
+        \item If $A = X$, then $\sem{X} = \{X\}^\perp$ by definition.
+        \item If $A = X^\perp$, we have $\{X^\perp\} \subseteq \{X\}^\perp$ using the axiom rule, hence $\sem{X^\perp} = \{X\}^\biperp \subseteq \{X^\perp\}^\perp$.
+        \item If $A = B \with C$, we have $\sem{B \with C} = \sem{B} \cap \sem{C} \subseteq \{B\}^\perp \cap \{C\}^\perp$ by the induction hypothesis. Moreover,
+        $$\begin{prooftree}
+            \hypo{\vdashfoc B, \Gamma}
+            \hypo{\vdashfoc C, \Gamma}
+            \infer2{\vdashfoc B \with C, \Gamma}
+        \end{prooftree}$$
+        Hence $\{B\}^\perp \cap \{C\}^\perp \subseteq \{B \with C\}^\perp$, from which the result follows.
+        \item If $A = \top$, we have $\sem{\top} = M = \{\top\}^\perp$ using the rule for $\top$.
+        \item If $A = B \parr C$, let $\Gamma \in \sem{B \parr C} = (\sem{B}^\perp \cdot \sem{C}^\perp)^\perp$. By the induction hypothesis, $\sem{B} \subseteq \{B\}^\perp$, hence $B \in \{B\}^\biperp \subseteq \sem{B}^\perp$, and similarly $C \in \sem{C}^\perp$, therefore $\vdashfoc B, C, \Gamma$. Moreover,
+        $$\begin{prooftree}
+            \hypo{\vdashfoc B, C, \Gamma}
+            \infer1{\vdashfoc B \parr C, \Gamma}
+        \end{prooftree}$$
+        Hence $\Gamma \in \{B \parr C\}^\perp$, from which the result follows.
+        \item If $A = \bot$, we have $\sem{\bot} = \bot = \{\bot\}^\perp$ using the rule for $\bot$.
+        \item Otherwise, $A$ is a positive non-atomic formula with main negative subformulas $A_1, \dots, A_\size{A}$.
+        Then, \begin{align*}
+            \sem{A} &= \Psi_A(\sem{A_1}, \dots, \sem{A_\size{A}})^\biperp &&\text{by lemma \ref{positivity}} \\
+            &\subseteq \Psi_A(\{A_1\}^\perp, \dots, \{A_\size{A}\}^\perp)^\biperp &&\text{by the induction hypothesis and monotonicity of $\Psi_A$} \\
+            &\subseteq \{A\}^\triperp = \{A\}^\perp &&\text{by lemma \ref{positive_phase}}
+        \end{align*}
+    \end{itemize}
+\end{proof}
+
+\begin{theorem}[Focalised completeness]
+    If a formula $A$ of MALL is valid in all phase models, then $A$ has a focalised proof.
+\end{theorem}
+\begin{proof}
+    In particular $\emptyset \in \sem{A}$, hence $\emptyset \in \{A\}^\perp$ by lemma \ref{meaning_is_provability}, therefore $\vdashfoc A$.
+\end{proof}
+
+Combining this with the soundness theorem, we get:
+\begin{corollary}[Focalisation]
+    Every provable formula $A$ of MALL has a focalised proof.
+\end{corollary}
+
+\printbibliography
+
+\end{document}
