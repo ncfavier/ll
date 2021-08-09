@@ -52,7 +52,7 @@
 \newcommand\sem[1]{{\llbracket #1 \rrbracket}}
 \newcommand\biperp{{\perp\perp}}
 \newcommand\triperp{{\perp\perp\perp}}
-\newcommand\Foc{\text{Foc}}
+\newcommand\Foc{\textup{Foc}}
 
 \begin{document}
 
@@ -67,7 +67,19 @@ for positive atoms $X$. Let $\sem{A}$ be the interpretation of a formula $A$ in 
 
 Note that $I \subseteq 1$ because of the $\wn w$ rule, so $\sem{\oc A} = (\sem{A} \cap I)^\biperp$.
 
-For a formula $A$, let $\size{A}$ denote the number of main negative subformulas in $A$. Define $\Psi_A$ as an $\size{A}$-ary monotonous operator on $\mathcal P(M)$ by induction:
+To simplify the notation, let $\vdash \Gamma; N$ mean $\vdash \Gamma, N;$ when $N$ is a negative formula.
+Let $\Foc(A) = {\{\Gamma \in M \mid\, \vdash \Gamma; A\}}$.
+Clearly $\Foc(A) \subseteq \{A\}^\perp$ by the \textit{foc} rule, and in particular $\Foc(N) = \{N\}^\perp$ for $N$ negative.
+
+We use the decomposition of exponential connectives alluded to in~\cite[section 4.1]{laurent}: \begin{align*}
+    \oc A = \shpos\sharp A && \wn A = \shneg\flat A
+\end{align*}
+We extend our definitions to this decomposition with $\sem{\sharp A} = \sem{A}$ and $\Foc(\sharp A) = \{A\}^\perp$,
+which is all that is needed here; this ensures the important property that $\Foc(N) = \Foc(N)^\biperp$ for $N$ negative.
+
+For a formula $A$, let $\size{A}$ denote the number of main negative subformulas in $A$
+(where $\sharp B$ is the main negative subformula in $\oc B$).
+Define $\Psi_A$ as an $\size{A}$-ary monotonous operator on $\mathcal P(M)$ by induction:
 \begin{itemize}
     \item $\Psi_N(N_1) = N_1$ if $N$ is negative
     \item $\Psi_X() = \{X^\perp\}$
@@ -75,23 +87,61 @@ For a formula $A$, let $\size{A}$ denote the number of main negative subformulas
     \item $\Psi_{B \oplus C}(B_1, \dots, B_\size{B}, C_1, \dots, C_\size{C}) = \Psi_B(B_1, \dots, B_\size{B}) \cup \Psi_C(C_1, \dots, C_\size{C})$
     \item $\Psi_1() = \{\emptyset\}$
     \item $\Psi_0() = \emptyset$
-    \item $\Psi_{\oc B}() = \{B\}^\perp \cap I$
+    \item $\Psi_{\oc B}(B_1) = B_1 \cap I$
 \end{itemize}
 
 \begin{lemma}
-    \label{positive_phase}
-    For any formula A with main negative subformulas $A_1, \dots, A_\size{A}$, $$\Psi_A(\{A_1\}^\perp, \dots, \{A_\size{A}\}^\perp)^\biperp \subseteq \{A\}^\perp$$
+    \label{positivity}
+    For any formula A with main negative subformulas $A_1, \dots, A_\size{A}$,
+    $$\sem{A} \subseteq \Psi_A(\sem{A_1}, \dots, \sem{A_\size{A}})^\biperp$$
 \end{lemma}
 \begin{proof}
-    To simplify the notation, let $\vdash \Gamma; N$ mean $\vdash \Gamma, N;$ when $N$ is a negative formula.
-    Let $\Foc(A) = {\{\Gamma \in M \mid\, \vdash \Gamma; A\}}$. Clearly $\Foc(A) \subseteq \{A\}^\perp$ by the \textit{foc} rule.
-
-    We prove by induction on $A$ that $\Psi_A(\Foc(A_1), \dots, \Foc(A_\size{A})) \subseteq \Foc(A)$:
+    By induction, using positivity results from~\cite[appendix F]{girard}:
+    $(X^\biperp \cdot Y^\biperp)^\biperp \subseteq (X \cdot Y)^\biperp$
+    and $(X^\biperp \cup Y^\biperp)^\biperp \subseteq (X \cup Y)^\biperp$.
     \begin{itemize}
-        \item If $A$ is negative, the result is trivial.
+        \item If $A$ is negative, then we have $\sem{A} = \sem{A}^\biperp$ because $\sem{A}$ is a fact.
+        \item If $A = X$, let $\Gamma \in \{X\}^\perp$ and $\Delta \in \{X^\perp\}^\perp$. We have
+        $$\begin{prooftree}
+            \hypo{\vdash \Gamma, X;}
+            \hypo{\vdash X^\perp, \Delta;}
+            \infer2[\textit{n-cut}]{\vdash \Gamma, \Delta;}
+        \end{prooftree}$$
+        from which $\{X\}^\perp \subseteq \{X^\perp\}^\biperp$ follows; therefore
+        $\sem{X} = \{X\}^\perp \subseteq \{X^\perp\}^\biperp = \Psi_X()^\biperp$.
+        \item If $A = B \otimes C$, then \begin{align*}
+            \sem{B \otimes C}
+            &= (\sem{B} \cdot \sem{C})^\biperp \\
+            &\subseteq (\Psi_B(\sem{B_1}, \dots, \sem{B_\size{B}})^\biperp \cdot \Psi_C(\sem{C_1}, \dots, \sem{C_\size{C}})^\biperp)^\biperp &&\text{by the induction hypothesis} \\
+            &\subseteq (\Psi_B(\sem{B_1}, \dots, \sem{B_\size{B}}) \cdot \Psi_C(\sem{C_1}, \dots, \sem{C_\size{C}}))^\biperp &&\text{by positivity} \\
+            &= \Psi_{B \otimes C}(\sem{B_1}, \dots, \sem{B_\size{B}}, \sem{C_1}, \dots, \sem{C_\size{C}})^\biperp
+        \end{align*}
+        \item If $A = B \oplus C$, then \begin{align*}
+            \sem{B \oplus C}
+            &= (\sem{B} \cup \sem{C})^\biperp \\
+            &\subseteq (\Psi_B(\sem{B_1}, \dots, \sem{B_\size{B}})^\biperp \cup \Psi_C(\sem{C_1}, \dots, \sem{C_\size{C}})^\biperp)^\biperp &&\text{by the induction hypothesis} \\
+            &\subseteq (\Psi_B(\sem{B_1}, \dots, \sem{B_\size{B}}) \cup \Psi_C(\sem{C_1}, \dots, \sem{C_\size{C}}))^\biperp &&\text{by positivity} \\
+            &= \Psi_{B \oplus C}(\sem{B_1}, \dots, \sem{B_\size{B}}, \sem{C_1}, \dots, \sem{C_\size{C}})^\biperp
+        \end{align*}
+        \item If $A = 1$ then $\sem{1} = \{\emptyset\}^\biperp$ by definition.
+        \item If $A = 0$ then $\sem{0} = \emptyset^\biperp$ by definition.
+        \item If $A = \oc B$ then $\sem{\oc B} = (\sem{B} \cap I)^\biperp = \Psi_{\oc B}(\sem{\sharp B})^\biperp$.
+    \end{itemize}
+\end{proof}
+
+\begin{lemma}
+    \label{positive_phase}
+    For any formula A with main negative subformulas $A_1, \dots, A_\size{A}$,
+    $$\Psi_A(\Foc(A_1), \dots, \Foc(A_\size{A})) \subseteq \Foc(A)$$
+\end{lemma}
+\begin{proof}
+    By induction:
+    \begin{itemize}
+        \item If $A$ is negative, $\Psi_A(\Foc(A)) = \Foc(A)$ by definition.
         \item If $A = X$, then $\Psi_X() = \{X^\perp\} \subseteq \Foc(X)$ by the \textit{ax} rule.
         \item If $A = B \otimes C$, then we have \begin{align*}
-            \Psi_A(\Foc(A_1), \dots, \Foc(A_\size{A})) &= \Psi_B(\Foc(B_1), \dots, \Foc(B_\size{B})) \cdot \Psi_C(\Foc(C_1), \dots, \Foc(C_\size{C})) \\
+            \Psi_A(\Foc(A_1), \dots, \Foc(A_\size{A}))
+            &= \Psi_B(\Foc(B_1), \dots, \Foc(B_\size{B})) \cdot \Psi_C(\Foc(C_1), \dots, \Foc(C_\size{C})) \\
             &\subseteq \Foc(B) \cdot \Foc(C)
         \end{align*} by the induction hypothesis; moreover,
         $$\begin{prooftree}
@@ -101,7 +151,8 @@ For a formula $A$, let $\size{A}$ denote the number of main negative subformulas
         \end{prooftree}$$
         hence $\Foc(B) \cdot \Foc(C) \subseteq \Foc(B \otimes C)$, from which the result follows.
         \item If $A = B \oplus C$, then we have \begin{align*}
-            \Psi_A(\Foc(A_1), \dots, \Foc(A_\size{A})) &= \Psi_B(\Foc(B_1), \dots, \Foc(B_\size{B})) \cup \Psi_C(\Foc(C_1), \dots, \Foc(C_\size{C})) \\
+            \Psi_A(\Foc(A_1), \dots, \Foc(A_\size{A}))
+            &= \Psi_B(\Foc(B_1), \dots, \Foc(B_\size{B})) \cup \Psi_C(\Foc(C_1), \dots, \Foc(C_\size{C})) \\
             &\subseteq \Foc(B) \cup \Foc(C)
         \end{align*} by the induction hypothesis; moreover,
         $$\begin{prooftree}
@@ -116,97 +167,69 @@ For a formula $A$, let $\size{A}$ denote the number of main negative subformulas
         hence $\Foc(B) \cup \Foc(C) \subseteq \Foc(B \oplus C)$, from which the result follows.
         \item If $A = 1$, clearly $\Psi_1() = \{\emptyset\} \subseteq \Foc(1)$ by the $1$ rule.
         \item If $A = 0$, clearly $\Psi_0() = \emptyset \subseteq \Foc(0)$.
-        \item If $A = \oc B$, then $\Psi_{\oc B}() = \{B\}^\perp \cap I$, and
+        \item If $A = \oc B$, then $\Psi_{\oc B}(\Foc(\sharp B)) = \{B\}^\perp \cap I$, and
         $$\begin{prooftree}
             \hypo{\vdash \wn \Gamma, B;}
             \infer1[$\oc$]{\vdash \wn \Gamma; \oc B}
         \end{prooftree}$$
         hence $\{B\}^\perp \cap I \subseteq \Foc(\oc B)$, from which the result follows.
     \end{itemize}
-
-    Since $A_1, \dots, A_\size{A}$ are negative, we have \begin{align*}
-        \Psi_A(\{A_1\}^\perp, \dots, \{A_\size{A}\}^\perp)^\biperp &= \Psi_A(\Foc(A_1), \dots, \Foc(A_\size{A}))^\biperp \\
-        &\subseteq \Foc(A)^\biperp \\
-        &\subseteq \{A\}^\triperp = \{A\}^\perp
-    \end{align*}
 \end{proof}
 
 \begin{lemma}
-    \label{positivity}
-    For any formula A with main negative subformulas $A_1, \dots, A_\size{A}$, $$\sem{A} \subseteq \Psi_A(\sem{A_1}, \dots, \sem{A_\size{A}})^\biperp$$
-\end{lemma}
-\begin{proof}
-    By induction, using positivity results from~\cite[appendix F]{girard}: $(X^\biperp \cdot Y^\biperp)^\biperp \subseteq (X \cdot Y)^\biperp$ and $(X^\biperp \cup Y^\biperp)^\biperp \subseteq (X \cup Y)^\biperp$.
-    \begin{itemize}
-        \item If $A$ is negative, then $\sem{A} = \sem{A}^\biperp$ is clear because $\sem{A}$ is a fact.
-        \item If $A = X$, let $\Gamma \in \{X\}^\perp$ and $\Delta \in \{X^\perp\}^\perp$. We have
-        $$\begin{prooftree}
-            \hypo{\vdash \Gamma, X;}
-            \hypo{\vdash X^\perp, \Delta;}
-            \infer2[\textit{n-cut}]{\vdash \Gamma, \Delta;}
-        \end{prooftree}$$
-        from which $\{X\}^\perp \subseteq \{X^\perp\}^\biperp$ follows; therefore $\sem{X} = \{X\}^\perp \subseteq \{X^\perp\}^\biperp = \Psi_X()^\biperp$.
-        \item If $A = B \otimes C$, then \begin{align*}
-            \sem{B \otimes C} &= (\sem{B} \cdot \sem{C})^\biperp \\
-            &\subseteq (\Psi_B(\sem{B_1}, \dots, \sem{B_\size{B}})^\biperp \cdot \Psi_C(\sem{C_1}, \dots, \sem{C_\size{C}})^\biperp)^\biperp &&\text{by the induction hypothesis}\\
-            &\subseteq (\Psi_B(\sem{B_1}, \dots, \sem{B_\size{B}}) \cdot \Psi_C(\sem{C_1}, \dots, \sem{C_\size{C}}))^\biperp \\
-            &= \Psi_{B \otimes C}(\sem{B_1}, \dots, \sem{B_\size{B}}, \sem{C_1}, \dots, \sem{C_\size{C}})^\biperp
-        \end{align*}
-        \item If $A = B \oplus C$, then \begin{align*}
-            \sem{B \oplus C} &= (\sem{B} \cup \sem{C})^\biperp \\
-            &\subseteq (\Psi_B(\sem{B_1}, \dots, \sem{B_\size{B}})^\biperp \cup \Psi_C(\sem{C_1}, \dots, \sem{C_\size{C}})^\biperp)^\biperp &&\text{by the induction hypothesis}\\
-            &\subseteq (\Psi_B(\sem{B_1}, \dots, \sem{B_\size{B}}) \cup \Psi_C(\sem{C_1}, \dots, \sem{C_\size{C}}))^\biperp \\
-            &= \Psi_{B \oplus C}(\sem{B_1}, \dots, \sem{B_\size{B}}, \sem{C_1}, \dots, \sem{C_\size{C}})^\biperp
-        \end{align*}
-        \item If $A = 1$ then $\sem{1} = \{\emptyset\}^\biperp$ by definition.
-        \item If $A = 0$ then $\sem{0} = \emptyset^\biperp$ by definition.
-        \item If $A = \oc B$ then \begin{align*}
-            \sem{\oc B} &= (\sem{B} \cap I)^\biperp \\
-            &\subseteq (\Psi_B(\sem{B_1},\dots,\sem{B_\size{B}})^\biperp \cap I)^\biperp &&\text{by the induction hypothesis}\\
-            &\subseteq (\{B\}^\perp \cap I)^\biperp &&\text{by \cref{positive_phase}}\\
-            &= \Psi_{\oc B}()^\biperp
-        \end{align*}
-    \end{itemize}
-\end{proof}
-
-\begin{lemma}
-    \label{sem_A_inc_A_perp}
-    For any formula $A$, $\sem{A} \subseteq \{A\}^\perp$.
+    \label{inner_in_foc}
+    For any formula $A$, $\sem{A} \subseteq \Foc(A)^\biperp$.
 \end{lemma}
 \begin{proof}
     By induction:
     \begin{itemize}
-        \item If $A = X^\perp$, we have $\{X^\perp\} \subseteq \Foc(X) \subseteq \{X\}^\perp$, therefore $\sem{X^\perp} = \sem{X}^\perp = \{X\}^\biperp \subseteq \{X^\perp\}^\perp$.
-        \item If $A = B \with C$, we have $\sem{B \with C} = \sem{B} \cap \sem{C} \subseteq \{B\}^\perp \cap \{C\}^\perp$ by the induction hypothesis; moreover,
+        \item If $A$ is a positive formula with main negative subformulas $A_1, \dots, A_\size{A}$, then \begin{align*}
+            \sem{A}
+            &\subseteq \Psi_A(\sem{A_1}, \dots, \sem{A_\size{A}})^\biperp &&\text{by \cref{positivity}} \\
+            &\subseteq \Psi_A(\Foc(A_1)^\biperp, \dots, \Foc(A_\size{A})^\biperp)^\biperp &&\text{by the induction hypothesis} \\
+            &= \Psi_A(\Foc(A_1), \dots, \Foc(A_\size{A}))^\biperp &&\text{because $A_1,\dots,A_\size{A}$ are negative} \\
+            &\subseteq \Foc(A)^\biperp &&\text{by \cref{positive_phase}}
+        \end{align*}
+        \item If $A = \sharp B$, then by the induction hypothesis
+        $\sem{\sharp B} = \sem{B} \subseteq \Foc(B)^\biperp \subseteq \{B\}^\perp = \Foc(\sharp B)^\biperp$.
+
+        Otherwise, it is enough to prove $\sem{A} \subseteq \{A\}^\perp$.
+        \item If $A = X^\perp$, we have $\{X\} \subseteq \{X^\perp\}^\perp$, therefore
+        $\sem{X^\perp} = \{X\}^\biperp \subseteq \{X^\perp\}^\triperp = \{X^\perp\}^\perp$.
+        \item If $A = B \with C$, we have $\sem{B \with C} = \sem{B} \cap \sem{C} \subseteq \{B\}^\perp \cap \{C\}^\perp$
+        by the induction hypothesis; moreover,
         $$\begin{prooftree}
             \hypo{\vdash \Gamma, B;}
             \hypo{\vdash \Gamma, C;}
             \infer2[$\with$]{\vdash \Gamma, B \with C;}
         \end{prooftree}$$
         hence $\{B\}^\perp \cap \{C\}^\perp \subseteq \{B \with C\}^\perp$, from which the result follows.
-        \item If $A = B \parr C$, let $\Gamma \in \sem{B \parr C} = (\sem{B}^\perp \cdot \sem{C}^\perp)^\perp$. By the induction hypothesis, $\sem{B} \subseteq \{B\}^\perp$, hence $B \in \{B\}^\biperp \subseteq \sem{B}^\perp$, and similarly $C \in \sem{C}^\perp$, therefore $\vdash B, C, \Gamma;$\;. Moreover,
+        \item If $A = B \parr C$, let $\Gamma \in \sem{B \parr C} = (\sem{B}^\perp \cdot \sem{C}^\perp)^\perp$.
+        By the induction hypothesis, $\sem{B} \subseteq \{B\}^\perp$, hence $B \in \{B\}^\biperp \subseteq \sem{B}^\perp$,
+        and similarly $C \in \sem{C}^\perp$, therefore $\vdash B, C, \Gamma;$\;. Moreover,
         $$\begin{prooftree}
             \hypo{\vdash \Gamma, B, C;}
             \infer1[$\parr$]{\vdash \Gamma, B \parr C;}
         \end{prooftree}$$
-        hence $\Gamma \in \{B \parr C\}^\perp$, therefore $\sem{B \parr C} \subseteq \{B \parr C\}^\perp$.
+        hence $\Gamma \in \{B \parr C\}^\perp$, from which the result follows.
         \item If $A = \top$, we have $\sem{\top} = M = \{\top\}^\perp$ by the $\top$ rule.
         \item If $A = \bot$, we have $\sem{\bot} = \bot \subseteq \{\bot\}^\perp$ by the $\bot$ rule.
-        \item Otherwise, $A$ is a positive formula with main negative subformulas $A_1, \dots, A_\size{A}$.
-        Then, \begin{align*}
-            \sem{A} &\subseteq \Psi_A(\sem{A_1}, \dots, \sem{A_\size{A}})^\biperp &&\text{by \cref{positivity}} \\
-            &\subseteq \Psi_A(\{A_1\}^\perp, \dots, \{A_\size{A}\}^\perp)^\biperp &&\text{by the induction hypothesis and monotonicity of $\Psi_A$} \\
-            &\subseteq \{A\}^\perp &&\text{by \cref{positive_phase}}
-        \end{align*}
+        \item If $A = \wn B$, then $\sem{\wn B} = (\sem{B}^\perp \cap I)^\perp$.
+        By the induction hypothesis, $\sem{B} \subseteq \Foc(B)^\biperp$, hence $\Foc(B)^\perp \subseteq \sem{B}^\perp$
+        and $(\sem{B}^\perp \cap I)^\perp \subseteq (\Foc(B)^\perp \cap I)^\perp$.
+        Moreover, $\wn B \in \Foc(B)^\perp \cap I$ because of the $\wn d$ rule, therefore
+        $(\Foc(B)^\perp \cap I)^\perp \subseteq \{\wn B\}^\perp$, from which the result follows.
     \end{itemize}
 \end{proof}
 
 \begin{corollary}
-    \label{sem_Gamma_inc_Gamma_perp}
+    \label{inner_in_outer}
     For any multiset of formulas $\Gamma = A_1, \dots, A_n$, $\sem{\Gamma} \subseteq \{\Gamma\}^\perp$.
 \end{corollary}
 \begin{proof}
-    By~\cref{sem_A_inc_A_perp}, we have $\sem{A_i} \subseteq \{A_i\}^\perp$ for all $1 \le i \le n$, hence $\{A_i\} \subseteq \{A_i\}^\biperp \subseteq \sem{A_i}^\perp$, therefore $\{\Gamma\} = \{A_1\} \cdots \{A_n\} \subseteq \sem{A_1}^\perp \cdots \sem{A_n}^\perp$.
+    By~\cref{inner_in_foc}, we have $\sem{A_i} \subseteq \Foc(A_i)^\biperp \subseteq \{A_i\}^\perp$
+    for all $1 \le i \le n$, hence $\{A_i\} \subseteq \{A_i\}^\biperp \subseteq \sem{A_i}^\perp$, therefore
+    $\{\Gamma\} = \{A_1\} \cdots \{A_n\} \subseteq \sem{A_1}^\perp \cdots \sem{A_n}^\perp$.
 
     Thus, $\sem{\Gamma} = \sem{A_1} \parr \dots \parr \sem{A_n} = (\sem{A_1}^\perp \cdots \sem{A_n}^\perp)^\perp \subseteq \{\Gamma\}^\perp$.
 \end{proof}
@@ -215,7 +238,10 @@ For a formula $A$, let $\size{A}$ denote the number of main negative subformulas
     If a sequent $\vdash \Gamma$ of $\LL$ is valid in all phase models, then $\vdash \Gamma$ has a focalised proof.
 \end{theorem}
 \begin{proof}
-    In particular $\emptyset \in \sem{\Gamma}$, hence $\emptyset \in \{\Gamma\}^\perp$ by \cref{sem_Gamma_inc_Gamma_perp}, therefore there is a proof $\pi$ of $\vdash \Gamma;$ in $\LLfoc$. Then, using~\cite[section 3.2]{laurent}, we get a proof $\pi'$ of $\vdash \Gamma;$ in $\LLFoc$. Finally, by~\cite[proposition 2]{laurent}, $\pi'^\circ$ is a cut-free, focalised proof of $\vdash \Gamma$ in $\LL$.
+    In particular $\emptyset \in \sem{\Gamma}$, hence $\emptyset \in \{\Gamma\}^\perp$ by
+    \cref{inner_in_outer}, therefore there is a proof $\pi$ of $\vdash \Gamma;$ in $\LLfoc$.
+    Then, using~\cite[section 3.2]{laurent}, we get a proof $\pi'$ of $\vdash \Gamma;$ in $\LLFoc$.
+    Finally, by~\cite[proposition 2]{laurent}, $\pi'^\circ$ is a cut-free, focalised proof of $\vdash \Gamma$ in $\LL$.
 \end{proof}
 
 Combining this with the soundness theorem for phase models, we get:
