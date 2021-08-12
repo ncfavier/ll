@@ -2,11 +2,12 @@
 \usepackage[utf8]{inputenc}
 \usepackage[british]{babel}
 \usepackage{csquotes}
-\usepackage[margin=0.8in]{geometry}
+\usepackage[margin=1in]{geometry}
 \usepackage{microtype}
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{amsthm}
+\usepackage[style=S]{thmbox}
 \usepackage{cmll}
 \usepackage{libertine}
 \usepackage[scale=0.8]{sourcecodepro}
@@ -44,6 +45,7 @@
 \newtheorem{theorem}{Theorem}
 \newtheorem{corollary}{Corollary}[theorem]
 \newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{definition}[theorem]{Definition}
 
 \newcommand\LL{\textsf{LL}}
 \newcommand\LLfoc{{\LL_\text{foc}}}
@@ -56,30 +58,35 @@
 
 \begin{document}
 
-\section{A proof of focalisation}
+\section{A semantic proof of focalisation}
 
 Let $\vdash \Gamma; \Pi$ denote a sequent of $\LLfoc$ as defined in~\cite{laurent}.
 
 We define the focalised syntactic phase model as $(M, I, \bot, \varphi)$ where $M$ is the
 free commutative monoid over formulas of $\LL$ with $\wn A$ and $\wn A, \wn A$ identified,
-$I = \{\wn \Gamma\mid\,\Gamma\in M\}$, $\bot = \{\Gamma \in M \mid\,\vdash \Gamma;\}$, and $\varphi(X) = \{X\}^\perp$
-for positive atoms $X$. Let $\sem{A}$ be the interpretation of a formula $A$ in this model.
+$I = \{\wn \Gamma\mid\,\Gamma\in M\}$, $\bot = \{\Gamma \in M \mid\,\vdash \Gamma;\}$, and
+$\varphi(X) = \{X\}^\perp$ for positive atoms $X$. Let $\sem{A}$ be the interpretation of a
+formula $A$ in this model.
 
 Note that $I \subseteq 1$ because of the $\wn w$ rule, so $\sem{\oc A} = (\sem{A} \cap I)^\biperp$.
 
 To simplify the notation, let $\vdash \Gamma; N$ mean $\vdash \Gamma, N;$ when $N$ is a negative formula.
 Let $\Foc(A) = {\{\Gamma \in M \mid\, \vdash \Gamma; A\}}$.
-Clearly $\Foc(A) \subseteq \{A\}^\perp$ by the \textit{foc} rule, and in particular $\Foc(N) = \{N\}^\perp$ for $N$ negative.
+Clearly $\Foc(A) \subseteq \{A\}^\perp$ by the \textit{foc} rule, and in particular
+$\Foc(N) = \{N\}^\perp$ for $N$ negative.
 
 We use the decomposition of exponential connectives alluded to in~\cite[section 4.1]{laurent}: \begin{align*}
     \oc A = \shpos\sharp A && \wn A = \shneg\flat A
 \end{align*}
-We extend our definitions to this decomposition with $\sem{\sharp A} = \sem{A}$ and $\Foc(\sharp A) = \{A\}^\perp$,
-which is all that is needed here; this ensures the important property that $\Foc(N) = \Foc(N)^\biperp$ for $N$ negative.
+We extend our definitions to this decomposition with $\sem{\sharp A} = \sem{\oc A}$ and
+$\Foc(\sharp A) = \{A\}^\perp \cap I$,
+which is all that is needed here.
 
 For a formula $A$, let $\size{A}$ denote the number of main negative subformulas in $A$
 (where $\sharp B$ is the main negative subformula in $\oc B$).
-Define $\Psi_A$ as an $\size{A}$-ary monotonous operator on $\mathcal P(M)$ by induction:
+
+Let $\Psi_A$ be the $\size{A}$-ary \emph{positive} operator (in the sense of~\cite[appendix F]{girard})
+on $\mathcal P(M)$ defined by induction as follows:
 \begin{itemize}
     \item $\Psi_N(N_1) = N_1$ if $N$ is negative
     \item $\Psi_X() = \{X^\perp\}$
@@ -87,7 +94,7 @@ Define $\Psi_A$ as an $\size{A}$-ary monotonous operator on $\mathcal P(M)$ by i
     \item $\Psi_{B \oplus C}(B_1, \dots, B_\size{B}, C_1, \dots, C_\size{C}) = \Psi_B(B_1, \dots, B_\size{B}) \cup \Psi_C(C_1, \dots, C_\size{C})$
     \item $\Psi_1() = \{\emptyset\}$
     \item $\Psi_0() = \emptyset$
-    \item $\Psi_{\oc B}(B_1) = B_1 \cap I$
+    \item $\Psi_{\oc B}(B_1) = B_1$
 \end{itemize}
 
 \begin{lemma}
@@ -125,7 +132,7 @@ Define $\Psi_A$ as an $\size{A}$-ary monotonous operator on $\mathcal P(M)$ by i
         \end{align*}
         \item If $A = 1$ then $\sem{1} = \{\emptyset\}^\biperp$ by definition.
         \item If $A = 0$ then $\sem{0} = \emptyset^\biperp$ by definition.
-        \item If $A = \oc B$ then $\sem{\oc B} = (\sem{B} \cap I)^\biperp = \Psi_{\oc B}(\sem{\sharp B})^\biperp$.
+        \item If $A = \oc B$ then $\sem{\oc B} = \sem{\sharp B} = \Psi_{\oc B}(\sem{\sharp B})^\biperp$.
     \end{itemize}
 \end{proof}
 
@@ -187,11 +194,11 @@ Define $\Psi_A$ as an $\size{A}$-ary monotonous operator on $\mathcal P(M)$ by i
             \sem{A}
             &\subseteq \Psi_A(\sem{A_1}, \dots, \sem{A_\size{A}})^\biperp &&\text{by \cref{positivity}} \\
             &\subseteq \Psi_A(\Foc(A_1)^\biperp, \dots, \Foc(A_\size{A})^\biperp)^\biperp &&\text{by the induction hypothesis} \\
-            &= \Psi_A(\Foc(A_1), \dots, \Foc(A_\size{A}))^\biperp &&\text{because $A_1,\dots,A_\size{A}$ are negative} \\
+            &= \Psi_A(\Foc(A_1), \dots, \Foc(A_\size{A}))^\biperp &&\text{by positivity} \\
             &\subseteq \Foc(A)^\biperp &&\text{by \cref{positive_phase}}
         \end{align*}
         \item If $A = \sharp B$, then by the induction hypothesis
-        $\sem{\sharp B} = \sem{B} \subseteq \Foc(B)^\biperp \subseteq \{B\}^\perp = \Foc(\sharp B)^\biperp$.
+        $\sem{\sharp B} = \sem{\oc B} = (\sem{B} \cap I)^\biperp \subseteq (\Foc(B)^\biperp \cap I)^\biperp \subseteq (\{B\}^\perp \cap I)^\biperp = \Foc(\sharp B)^\biperp$.
 
         Otherwise, it is enough to prove $\sem{A} \subseteq \{A\}^\perp$.
         \item If $A = X^\perp$, we have $\{X\} \subseteq \{X^\perp\}^\perp$, therefore
@@ -215,8 +222,8 @@ Define $\Psi_A$ as an $\size{A}$-ary monotonous operator on $\mathcal P(M)$ by i
         \item If $A = \top$, we have $\sem{\top} = M = \{\top\}^\perp$ by the $\top$ rule.
         \item If $A = \bot$, we have $\sem{\bot} = \bot \subseteq \{\bot\}^\perp$ by the $\bot$ rule.
         \item If $A = \wn B$, then $\sem{\wn B} = (\sem{B}^\perp \cap I)^\perp$.
-        By the induction hypothesis, $\sem{B} \subseteq \Foc(B)^\biperp$, hence $\Foc(B)^\perp \subseteq \sem{B}^\perp$
-        and $(\sem{B}^\perp \cap I)^\perp \subseteq (\Foc(B)^\perp \cap I)^\perp$.
+        By the induction hypothesis, $\sem{B} \subseteq \Foc(B)^\biperp$, hence
+        $(\sem{B}^\perp \cap I)^\perp \subseteq (\Foc(B)^\perp \cap I)^\perp$.
         Moreover, $\wn B \in \Foc(B)^\perp \cap I$ because of the $\wn d$ rule, therefore
         $(\Foc(B)^\perp \cap I)^\perp \subseteq \{\wn B\}^\perp$, from which the result follows.
     \end{itemize}
@@ -246,7 +253,7 @@ Define $\Psi_A$ as an $\size{A}$-ary monotonous operator on $\mathcal P(M)$ by i
 
 Combining this with the soundness theorem for phase models, we get:
 \begin{corollary}[Focalisation]
-    Every provable sequent $\vdash \Gamma$ of $\LL$ has a focalised proof.
+    Every provable sequent of $\LL$ has a focalised proof.
 \end{corollary}
 
 \printbibliography
