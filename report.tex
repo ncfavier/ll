@@ -325,21 +325,20 @@ The property has two sides:
     then we can immediately decompose $B \otimes C$ using the $\otimes$ rule without needing to backtrack.
 \end{itemize}
 
-%This property is made explicit in the \emph{hypersequentialised} sequent calculus proposed by Girard~\cite{meaning},
-%which considers \emph{synthetic} connectives of the same polarities.
-
 The focalisation property already has several syntactic proofs \cite{andreoli} \cite{saurin} \cite{laurent}; the main
 contribution of this internship is a \emph{semantic} proof of the completeness of focused proofs
 using phase semantics.
 
 Laurent's proof~\cite{laurent} proceeds in two steps: it first embeds proofs of $\LL$ into proofs of $\LLfoc$, a
-restricted variant of $\LL$ that enforces the \emph{weak} focalisation property; then it embeds proofs of $\LLfoc$ into
-proofs of $\LLFoc$, an even more restricted system that ensures the full focalisation property.
+restricted variant of $\LL$ that enforces a \emph{weak} focalisation property (the core of the proof),
+then it embeds cut-free proofs of $\LLfoc$ into proofs of $\LLFoc$, an even more restricted system that enforces
+the full focalisation property.
 
 We prove that phase semantics are complete with respect to the cut-free $\LLfoc$ system. Combined with the soundness theorem
 and \cite[proposition 1]{laurent}, we get that every sequent that is provable in $\LL$ has a weakly focalised proof.
 
-In the following, let $\vdash \Gamma; \Pi$ denote a sequent of $\LLfoc$ \emph{without the cut rules}.
+In the following, let $\vdash \Gamma; \Pi$ (where $\Pi$ is either empty or a single positive formula) denote a sequent
+of $\LLfoc$ \emph{without the cut rules}.
 To simplify the notation, we let $\vdash \Gamma; N$ mean $\vdash \Gamma, N;$ when $N$ is a negative formula.
 
 \begin{definition}
@@ -349,12 +348,13 @@ $\bot = \{\Gamma \in M \mid\,\vdash \Gamma;\}$, and
 $\sem{X} = \{X^\perp\}^\biperp$ for positive atoms $X$. We have $\Gamma \cdot \Delta = \Gamma, \Delta$ and $1 = \emptyset$.
 \end{definition}
 
-Note that $I = \{\wn \Gamma\mid\,\Gamma\in M\} \subseteq \1$ because of the $\wn w$ rule,
-so that $\sem{\oc A} = (\sem{A} \cap I)^\biperp$.
-
 Let $\Foc(A) = {\{\Gamma \in M \mid\, \vdash \Gamma; A\}}$.
 Clearly $\Foc(A) \subseteq \{A\}^\perp$ by the \textit{foc} rule, and in particular
 $\Foc(N) = \{N\}^\perp$ for $N$ negative.
+
+Note that provability is compatible with our identification of $\wn A$ and $\wn A, \wn A$ thanks to the $\wn w$ and $\wn c$ rules,
+so that $\bot$ and $\Foc$ are well-defined. Also note that $I = \{\wn \Gamma\mid\,\Gamma\in M\} \subseteq \1$ because of the
+$\wn w$ rule, so that $\sem{\oc A} = (\sem{A} \cap I)^\biperp$.
 
 We use the decomposition of exponential connectives alluded to in \cite[section 4.1]{laurent}: \begin{align*}
     \oc A &= \shpos\sharp A & \wn A &= \shneg\flat A
