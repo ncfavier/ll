@@ -18,15 +18,6 @@
     style=alphabetic
 ]{biblatex}
 \addbibresource{report.bib}
-%\DeclareLabelalphaTemplate{
-%    \labelelement{
-%        \field[ifnames=1,strwidth=10]{labelname}
-%        \field[ifnames=2-,strwidth=1]{labelname}
-%    }
-%    \labelelement{
-%        \field[strwidth=2,strside=right]{year}
-%    }
-%}
 \usepackage{xcolor}
 \definecolor{linkcolor}{HTML}{DD00BB}
 \usepackage[
@@ -58,7 +49,7 @@
 \newcommand\sem[1]{{\llbracket #1 \rrbracket}}
 \newcommand\biperp{{\perp\perp}}
 \newcommand\triperp{{\perp\perp\perp}}
-\newcommand\Foc{\textup{Foc}}
+\newcommand\Foc[1]{\textup{Foc}(#1)}
 
 \usepackage{titling}
 \title{\huge\sc Phase semantics of linear logic applied to the focalisation property}
@@ -68,21 +59,8 @@
     \centering
     M1 research internship supervised by: Alexis Saurin --- PPS pole --- IRIF
 
-    \vspace{15px}
-    \includegraphics[width=300px]{focus}
-
-%$$
-%\scalebox{1.5}{
-%\begin{prooftree}
-%    \infer0[\textit{ax}]{\vdash B^\perp, B}
-%    \infer1[$\oplus_1$]{\vdash B^\perp, B \oplus D}
-%    \infer0[\textit{ax}]{\vdash C^\perp, C}
-%    \infer1[$\oplus_1$]{\vdash C^\perp, C \oplus E}
-%    \infer2[$\otimes$]{\vdash B^\perp \otimes C^\perp, B \oplus D, C \oplus E}
-%    \infer1[$\oplus_2$]{\vdash A \oplus B^\perp \otimes C^\perp, B \oplus D, C \oplus E}
-%\end{prooftree}
-%}
-%$$
+    \vspace{15pt}
+    \includegraphics[width=300pt]{focus}
 }
 
 \usepackage{graphicx}
@@ -104,8 +82,8 @@ During this internship, I have been investigating the phase semantics of linear 
 of \emph{provability}, and trying to extract information on \emph{proofs} from such semantics, in particular in relationship
 to the focalisation property which allows a proof search procedure to narrow down its search space in certain situations.
 
-We will start with a basic review of linear logic in \cref{sec:ll}, then we'll introduce phase semantics and their main
-completeness results in \cref{sec:phase_semantics}, and finally we'll explore the application of phase semantics
+We will start with a basic review of propositional linear logic in \cref{sec:ll}, then we will introduce phase semantics and their main
+completeness results in \cref{sec:phase_semantics}, and finally we will explore the application of phase semantics
 to the focalisation property in \cref{sec:focalisation}.
 
 \section{\label{sec:ll}Linear logic}
@@ -150,7 +128,7 @@ formulas on the right.
 The inference rules for $\LL$ are as follows:
 \begin{gather*}
     \begin{prooftree}
-        \infer0[\textit{ax}]{\vdash A, A^\perp}
+        \infer0[\textit{ax}]{\vdash A^\perp, A}
     \end{prooftree}
     \qquad
     \begin{prooftree}
@@ -223,11 +201,11 @@ The inference rules for $\LL$ are as follows:
 \emph{Linear implication}, noted $A \multimap B$, is defined as $A^\perp \parr B$.
 
 Remarkably, $\otimes$ and $\oplus$ distribute over each other; dually,
-$\parr$ and $\with$ distribute each other; finally, we have $\oc (A \with B) \equiv \oc A \otimes \oc B$.
+$\parr$ and $\with$ distribute over each other; finally, we have $\oc (A \with B) \equiv \oc A \otimes \oc B$.
 
 \section{\label{sec:phase_semantics}Phase semantics}
 
-Linear logic has two main semantics: coherence spaces, which is a semantics of \emph{proofs}, and phase semantics,
+Linear logic has two main semantics: coherence spaces, which are a semantics of \emph{proofs}, and phase semantics,
 a simpler semantics of \emph{provability} which we will focus on.
 
 \begin{definition}
@@ -243,7 +221,6 @@ For any $X, Y \subseteq M$, we have the following easy results:
     \item $X^\perp = X^\triperp$
     \item $(X \cup Y)^\perp = X^\perp \cap Y^\perp$
 \end{itemize}
-
 A \emph{fact} is a set of phases $X$ such that $X = X^\biperp$. Equivalently, a fact is a set of the form $Y^\perp$
 for $Y \subseteq M$.
 
@@ -260,42 +237,54 @@ We define the following operators and constants on $\mathcal P(M)$:
 Let $\Phi$ be an $n$-ary monotonous operator on $\mathcal P(M)$. $\Phi$ is
 \begin{itemize}
     \item[$-$] \textbf{negative} if it maps facts to facts, i.e. $\Phi(X_1^\biperp, \dots, X_n^\biperp)^\biperp = \Phi(X_1^\biperp, \dots, X_n^\biperp)$;
-    \item[$+$] \textbf{positive} if it verifies $\Phi(X_1^\biperp, \dots, X_n^\biperp) \subseteq \Phi(X_1, \dots, X_n)^\biperp$.
+    \item[$+$] \textbf{positive} if it verifies $\Phi(X_1^\biperp, \dots, X_n^\biperp) \subseteq \Phi(X_1, \dots, X_n)^\biperp$ (and
+    hence, by monotonicity,\linebreak ${\Phi(X_1^\biperp, \dots, X_n^\biperp)^\biperp = \Phi(X_1, \dots, X_n)^\biperp}$).
 \end{itemize}
 In the nullary case, every set of phases is positive and the negative sets of phases are exactly facts.
+
+Note that $\cdot$ and $\cup$ (and their $n$-ary versions) are positive operators,
+while $\parr$ and $\with$ are negative operators~\cite[appendix F]{meaning}, and
+that both properties are stable under composition.
 
 \begin{definition}
     A \textbf{phase model} is a phase space $(M, \bot)$ together with a fact $\sem{X}$ for every atomic
     formula $X$. The interpretation $\sem{A}$ of a formula $A$ is defined by induction using the operators above,
     and the interpretation of a context $\Gamma = A_1, \ldots, A_n$ is defined as $\sem{\Gamma} = \sem{A_1} \parr \dots \parr \sem{A_n}$.
-    Clearly $\sem{A}$, $\sem{\Gamma}$ are facts.
+    One can easily check that $\sem{A}$, $\sem{\Gamma}$ are facts.
 \end{definition}
 
-A formula is said to be \emph{valid} in a given phase model if $1 \in \sem{A}$. More generally, a sequent
+A formula $A$ is said to be \emph{valid} in a given phase model if $1 \in \sem{A}$. More generally, a sequent
 $\vdash \Gamma$ is valid if $1 \in \sem{\Gamma}$.
 
+Let us now state core results of phase semantics:
+
 \begin{theorem}[Soundness]
-    If a sequent $\vdash \Gamma$ is provable in $\LL$, then it is valid in every phase model.
+    If a sequent is provable in $\LL$, then it is valid in every phase model.
 \end{theorem}
 \begin{proof}
-    By induction on a proof of $\vdash \Gamma$. See for example \cite[theorem 1]{okada}.
+    By induction on a proof of $\LL$; see \cite[theorem 1]{okada}.
 \end{proof}
 
 \begin{theorem}[Completeness]
-    If a sequent $\vdash \Gamma$ is valid in every phase model, then it is provable in $\LL$.
+    If a sequent is valid in every phase model, then it is provable in $\LL$.
 \end{theorem}
 
 This statement can actually be made stronger:
 \begin{theorem}[Cut-free completeness]
-    If a sequent $\vdash \Gamma$ is valid in every phase model, then it has a cut-free proof in $\LL$.
+    \label{completeness}
+    If a sequent is valid in every phase model, then it has a cut-free proof in $\LL$.
 \end{theorem}
 \begin{proof}
-    By induction on $\Gamma$ (considered as a single formula). See \cite[theorem 3]{okada}.
+    The proof proceeds by defining a \textbf{syntactic phase model} $(M, \bot)$ where $M$ is the free commutative
+    monoid over formulas of $\LL$ with $\wn A$ and $\wn A, \wn A$ identified,
+    $\bot = \{\Gamma\in M\mid\; \vdash \Gamma\text{ is provable without the \textit{cut} rule}\}$, and $\sem{X} = \{X\}^\perp$.
+    It then shows that $\sem{A}\subseteq\{A\}^\perp$ by induction on formulas, from which the result follows;
+    see \cite[theorem 3]{okada} for details.
 \end{proof}
 
 Combining the cut-free completeness theorem with the soundness theorem, we get:
 \begin{theorem}[Cut elimination]
-    If a sequent $\vdash \Gamma$ is provable in $\LL$, then it has a cut-free proof.
+    If a sequent is provable in $\LL$, then it has a cut-free proof.
 \end{theorem}
 
 \section{\label{sec:focalisation}The focalisation property}
@@ -308,7 +297,8 @@ $\otimes$ and $\oplus$: the $\otimes$ rule requires choosing a way to split the 
 connective requires choosing between the $\oplus_1$ and $\oplus_2$ rules.
 
 This suggests another partition of the connectives into two \emph{polarities}, the \emph{positive} connectives
-($\otimes$, $\oplus$, $1$, $0$, $\oc$) and the \emph{negative} connectives ($\parr$, $\with$, $\bot$, $\top$, $\wn$).
+($\otimes$, $\oplus$, $1$, $0$, $\oc$ and positive atoms) and the \emph{negative} connectives
+($\parr$, $\with$, $\bot$, $\top$, $\wn$ and negative atoms).
 Notice that the remarkable distributivities of \cref{sec:ll} only occur between connectives of the same polarities,
 and that linear negation flips the polarity of a formula (which is defined as the polarity of its main connective).
 
@@ -330,16 +320,84 @@ contribution of this internship is a \emph{semantic} proof of the completeness o
 using phase semantics.
 
 Laurent's proof~\cite{laurent} proceeds in two steps: it first embeds proofs of $\LL$ into proofs of $\LLfoc$, a
-restricted variant of $\LL$ that enforces a \emph{weak} focalisation property (the core of the proof),
-then it embeds cut-free proofs of $\LLfoc$ into proofs of $\LLFoc$, an even more restricted system that enforces
+restricted variant of $\LL$ that enforces a \emph{weak} focalisation property (the core of the proof, according to Laurent),
+then it embeds cut-free proofs of $\LLfoc$ into proofs of $\LLFoc$ (note the capital), an even more restricted system that enforces
 the full focalisation property.
 
-We prove that phase semantics are complete with respect to the cut-free $\LLfoc$ system. Combined with the soundness theorem
-and \cite[proposition 1]{laurent}, we get that every sequent that is provable in $\LL$ has a weakly focalised proof.
-
-In the following, let $\vdash \Gamma; \Pi$ (where $\Pi$ is either empty or a single positive formula) denote a sequent
-of $\LLfoc$ \emph{without the cut rules}.
-To simplify the notation, we let $\vdash \Gamma; N$ mean $\vdash \Gamma, N;$ when $N$ is a negative formula.
+We prove that phase semantics are complete with respect to the cut-free $\LLfoc$ system in a way similar to the proof of
+\cref{completeness}. A sequent of $\LLfoc$ has the shape $\vdash \Gamma;\Pi$, where $\Gamma$ is a multiset of formulas and $\Pi$ contains at most
+one positive formula. To simplify the notation, we let $\vdash \Gamma; N$ mean $\vdash \Gamma, N;$ when $N$ is a negative formula.
+The rules of the cut-free $\LLfoc$ system with expanded axioms are as follows:
+\begin{gather*}
+    \begin{prooftree}
+        \infer0[\textit{ax}]{\vdash X^\perp;X}
+    \end{prooftree}
+    \qquad
+    \begin{prooftree}
+        \hypo{\vdash\Gamma;P}
+        \infer1[\textit{foc}]{\vdash \Gamma, P}
+    \end{prooftree}
+    \\
+    \begin{prooftree}
+        \hypo{\vdash \Gamma, A, B; \Pi}
+        \infer1[$\parr$]{\vdash \Gamma, A \parr B; \Pi}
+    \end{prooftree}
+    \qquad
+    \begin{prooftree}
+        \hypo{\vdash \Gamma; \Pi}
+        \infer1[$\bot$]{\vdash \Gamma, \bot; \Pi}
+    \end{prooftree}
+    \\
+    \begin{prooftree}
+        \hypo{\vdash \Gamma; A}
+        \hypo{\vdash \Delta; B}
+        \infer2[$\otimes$]{\vdash \Gamma, \Delta; A \otimes B}
+    \end{prooftree}
+    \qquad
+    \begin{prooftree}
+        \infer0[$1$]{\vdash ;1}
+    \end{prooftree}
+    \\
+    \begin{prooftree}
+        \hypo{\vdash \Gamma, A; \Pi}
+        \hypo{\vdash \Gamma, B; \Pi}
+        \infer2[$\with$]{\vdash \Gamma, A \with B; \Pi}
+    \end{prooftree}
+    \qquad
+    \begin{prooftree}
+        \infer0[$\top$]{\vdash \Gamma, \top; \Pi}
+    \end{prooftree}
+    \\
+    \begin{prooftree}
+        \hypo{\vdash \Gamma; A}
+        \infer1[$\oplus_1$]{\vdash \Gamma; A \oplus B}
+    \end{prooftree}
+    \qquad
+    \begin{prooftree}
+        \hypo{\vdash \Gamma; B}
+        \infer1[$\oplus_2$]{\vdash \Gamma; A \oplus B}
+    \end{prooftree}
+    \\
+    \begin{prooftree}
+        \hypo{\vdash \wn\Gamma, A;}
+        \infer1[$\oc$]{\vdash \wn\Gamma; \oc A}
+    \end{prooftree}
+    \qquad
+    \begin{prooftree}
+        \hypo{\vdash \Gamma; A}
+        \infer1[$\wn d$]{\vdash \Gamma, \wn A;}
+    \end{prooftree}
+    \qquad
+    \begin{prooftree}
+        \hypo{\vdash \Gamma; \Pi}
+        \infer1[$\wn w$]{\vdash \Gamma, \wn A; \Pi}
+    \end{prooftree}
+    \qquad
+    \begin{prooftree}
+        \hypo{\vdash \Gamma, \wn A, \wn A; \Pi}
+        \infer1[$\wn c$]{\vdash \Gamma, \wn A; \Pi}
+    \end{prooftree}
+\end{gather*}
 
 \begin{definition}
 We define the \textbf{focalised syntactic phase model} as $(M, \bot)$ where $M$ is the
@@ -347,12 +405,12 @@ free commutative monoid over formulas of $\LL$ with $\wn A$ and $\wn A, \wn A$ i
 $\bot = \{\Gamma \in M \mid\,\vdash \Gamma;\}$, and $\sem{X} = \{X^\perp\}^\biperp$ for positive atoms $X$.
 \end{definition}
 
-Let $\Foc(A) = {\{\Gamma \in M \mid\, \vdash \Gamma; A\}}$.
-Clearly $\Foc(A) \subseteq \{A\}^\perp$ by the \textit{foc} rule, and in particular
-$\Foc(N) = \{N\}^\perp$ for $N$ negative.
+Let $\Foc{A} = {\{\Gamma \in M \mid\, \vdash \Gamma; A\}}$.
+Clearly $\Foc{A} \subseteq \{A\}^\perp$ by the \textit{foc} rule, and in particular
+$\Foc{N} = \{N\}^\perp$ for $N$ negative.
 
 Note that provability is compatible with our identification of $\wn A$ and $\wn A, \wn A$ thanks to the $\wn w$ and $\wn c$ rules,
-so that $\bot$ and $\Foc$ are well-defined. Also note that $I = \{\wn \Gamma\mid\,\Gamma\in M\} \subseteq \1$ because of the
+so that $\bot$ and $\Foc{A}$ are well-defined. Also note that $I = \{\wn \Gamma\mid\,\Gamma\in M\} \subseteq \1$ because of the
 $\wn w$ rule, so that $\sem{\oc A} = (\sem{A} \cap I)^\biperp$.
 
 We use the decomposition of exponential connectives alluded to in \cite[section 4.1]{laurent}: \begin{align*}
@@ -361,7 +419,7 @@ We use the decomposition of exponential connectives alluded to in \cite[section 
 where $\shpos, \flat$ are positive and $\sharp, \shneg$ are negative.
 In fact, we only need to consider formulas of the forms $A$ and $\sharp A$, where $A$ is a formula of $\LL$.
 Let us extend our definitions to this connective
-with $\sem{\sharp A} = \sem{\oc A}$ and $\Foc(\sharp A) = \{A\}^\perp \cap I$.
+with $\sem{\sharp A} = \sem{\oc A}$ and $\Foc{\sharp A} = \{A\}^\perp \cap I$.
 
 For a formula $A$, let $\size{A}$ denote the number of main negative subformulas in $A$
 (where $\sharp B$ is the main negative subformula in $\oc B$).
@@ -380,27 +438,25 @@ Let $\Psi_A$ be an $\size{A}$-ary positive operator on $\mathcal P(M)$ defined b
 \begin{lemma}
     \label{positivity}
     For any formula A with main negative subformulas $A_1, \dots, A_\size{A}$,
-    $$\sem{A} \subseteq \Psi_A(\sem{A_1}, \dots, \sem{A_\size{A}})^\biperp$$
+    $$\sem{A} = \Psi_A(\sem{A_1}, \dots, \sem{A_\size{A}})^\biperp$$
 \end{lemma}
 \begin{proof}
-    By induction, using positivity results from \cite[appendix F]{meaning}:
-    $(X^\biperp \cdot Y^\biperp)^\biperp \subseteq (X \cdot Y)^\biperp$
-    and $(X^\biperp \cup Y^\biperp)^\biperp \subseteq (X \cup Y)^\biperp$.
+    By induction:
     \begin{itemize}
         \item If $A$ is negative, then we have $\sem{A} = \sem{A}^\biperp$ because $\sem{A}$ is a fact.
         \item If $A = X$, then $\sem{X} = \{X^\perp\}^\biperp = \Psi_X()^\biperp$.
         \item If $A = B \otimes C$, then \begin{align*}
             \sem{B \otimes C}
             &= (\sem{B} \cdot \sem{C})^\biperp \\
-            &\subseteq (\Psi_B(\sem{B_1}, \dots, \sem{B_\size{B}})^\biperp \cdot \Psi_C(\sem{C_1}, \dots, \sem{C_\size{C}})^\biperp)^\biperp &&\text{by the induction hypothesis} \\
-            &\subseteq (\Psi_B(\sem{B_1}, \dots, \sem{B_\size{B}}) \cdot \Psi_C(\sem{C_1}, \dots, \sem{C_\size{C}}))^\biperp &&\text{by positivity} \\
+            &= (\Psi_B(\sem{B_1}, \dots, \sem{B_\size{B}})^\biperp \cdot \Psi_C(\sem{C_1}, \dots, \sem{C_\size{C}})^\biperp)^\biperp &&\text{by the induction hypothesis} \\
+            &= (\Psi_B(\sem{B_1}, \dots, \sem{B_\size{B}}) \cdot \Psi_C(\sem{C_1}, \dots, \sem{C_\size{C}}))^\biperp &&\text{by positivity} \\
             &= \Psi_{B \otimes C}(\sem{B_1}, \dots, \sem{B_\size{B}}, \sem{C_1}, \dots, \sem{C_\size{C}})^\biperp
         \end{align*}
         \item If $A = B \oplus C$, then \begin{align*}
             \sem{B \oplus C}
             &= (\sem{B} \cup \sem{C})^\biperp \\
-            &\subseteq (\Psi_B(\sem{B_1}, \dots, \sem{B_\size{B}})^\biperp \cup \Psi_C(\sem{C_1}, \dots, \sem{C_\size{C}})^\biperp)^\biperp &&\text{by the induction hypothesis} \\
-            &\subseteq (\Psi_B(\sem{B_1}, \dots, \sem{B_\size{B}}) \cup \Psi_C(\sem{C_1}, \dots, \sem{C_\size{C}}))^\biperp &&\text{by positivity} \\
+            &= (\Psi_B(\sem{B_1}, \dots, \sem{B_\size{B}})^\biperp \cup \Psi_C(\sem{C_1}, \dots, \sem{C_\size{C}})^\biperp)^\biperp &&\text{by the induction hypothesis} \\
+            &= (\Psi_B(\sem{B_1}, \dots, \sem{B_\size{B}}) \cup \Psi_C(\sem{C_1}, \dots, \sem{C_\size{C}}))^\biperp &&\text{by positivity} \\
             &= \Psi_{B \oplus C}(\sem{B_1}, \dots, \sem{B_\size{B}}, \sem{C_1}, \dots, \sem{C_\size{C}})^\biperp
         \end{align*}
         \item If $A = 1$ then $\sem{1} = \{\emptyset\}^\biperp$ by definition.
@@ -412,66 +468,50 @@ Let $\Psi_A$ be an $\size{A}$-ary positive operator on $\mathcal P(M)$ defined b
 \begin{lemma}
     \label{positive_phase}
     For any formula A with main negative subformulas $A_1, \dots, A_\size{A}$,
-    $$\Psi_A(\Foc(A_1), \dots, \Foc(A_\size{A})) \subseteq \Foc(A)$$
+    $$\Psi_A(\Foc{A_1}, \dots, \Foc{A_\size{A}}) \subseteq \Foc{A}$$
 \end{lemma}
 \begin{proof}
     By induction:
     \begin{itemize}
-        \item If $A$ is negative, $\Psi_A(\Foc(A)) = \Foc(A)$ by definition.
-        \item If $A = X$, then $\Psi_X() = \{X^\perp\} \subseteq \Foc(X)$ by the \textit{ax} rule.
-        \item If $A = B \otimes C$, then we have \begin{align*}
-            \Psi_A(\Foc(A_1), \dots, \Foc(A_\size{A}))
-            &= \Psi_B(\Foc(B_1), \dots, \Foc(B_\size{B})) \cdot \Psi_C(\Foc(C_1), \dots, \Foc(C_\size{C})) \\
-            &\subseteq \Foc(B) \cdot \Foc(C)
-        \end{align*} by the induction hypothesis; moreover,
-        $$\begin{prooftree}
-            \hypo{\vdash \Gamma; B}
-            \hypo{\vdash \Delta; C}
-            \infer2[$\otimes$]{\vdash \Gamma, \Delta; B \otimes C}
-        \end{prooftree}$$
-        hence $\Foc(B) \cdot \Foc(C) \subseteq \Foc(B \otimes C)$, from which the result follows.
-        \item If $A = B \oplus C$, then we have \begin{align*}
-            \Psi_A(\Foc(A_1), \dots, \Foc(A_\size{A}))
-            &= \Psi_B(\Foc(B_1), \dots, \Foc(B_\size{B})) \cup \Psi_C(\Foc(C_1), \dots, \Foc(C_\size{C})) \\
-            &\subseteq \Foc(B) \cup \Foc(C)
-        \end{align*} by the induction hypothesis; moreover,
-        $$\begin{prooftree}
-            \hypo{\vdash \Gamma; B}
-            \infer1[$\oplus_1$]{\vdash \Gamma; B \oplus C}
-        \end{prooftree}
-        \quad
-        \begin{prooftree}
-            \hypo{\vdash \Delta; C}
-            \infer1[$\oplus_2$]{\vdash \Delta; B \oplus C}
-        \end{prooftree}$$
-        hence $\Foc(B) \cup \Foc(C) \subseteq \Foc(B \oplus C)$, from which the result follows.
-        \item If $A = 1$, clearly $\Psi_1() = \{\emptyset\} \subseteq \Foc(1)$ by the $1$ rule.
-        \item If $A = 0$, clearly $\Psi_0() = \emptyset \subseteq \Foc(0)$.
-        \item If $A = \oc B$, then $\Psi_{\oc B}(\Foc(\sharp B)) = \{B\}^\perp \cap I$, and
-        $$\begin{prooftree}
-            \hypo{\vdash \wn \Gamma, B;}
-            \infer1[$\oc$]{\vdash \wn \Gamma; \oc B}
-        \end{prooftree}$$
-        hence $\{B\}^\perp \cap I \subseteq \Foc(\oc B)$, from which the result follows.
+        \item If $A$ is negative, $\Psi_A(\Foc{A}) = \Foc{A}$ by definition.
+        \item If $A = X$, then $\Psi_X() = \{X^\perp\} \subseteq \Foc{X}$ by the \textit{ax} rule.
+        \item If $A = B \otimes C$, then \begin{align*}
+            &\Psi_A(\Foc{A_1}, \dots, \Foc{A_\size{A}}) \\
+            =\;& \Psi_B(\Foc{B_1}, \dots, \Foc{B_\size{B}}) \cdot \Psi_C(\Foc{C_1}, \dots, \Foc{C_\size{C}}) \\
+            \subseteq\;& \Foc{B} \cdot \Foc{C} &&\text{by the induction hypothesis} \\
+            \subseteq\;& \Foc{B \otimes C} &&\text{by the $\otimes$ rule}
+        \end{align*}
+        \item If $A = B \oplus C$, then \begin{align*}
+            &\Psi_A(\Foc{A_1}, \dots, \Foc{A_\size{A}}) \\
+            =\;& \Psi_B(\Foc{B_1}, \dots, \Foc{B_\size{B}}) \cup \Psi_C(\Foc{C_1}, \dots, \Foc{C_\size{C}}) \\
+            \subseteq\;& \Foc{B} \cup \Foc{C} &&\text{by the induction hypothesis} \\
+            \subseteq\;& \Foc{B \oplus C} &&\text{by the $\oplus_1$ and $\oplus_2$ rules}
+        \end{align*}
+        \item If $A = 1$, then $\Psi_1() = \{\emptyset\} \subseteq \Foc{1}$ by the $1$ rule.
+        \item If $A = 0$, clearly $\Psi_0() = \emptyset \subseteq \Foc{0}$.
+        \item If $A = \oc B$, then \begin{align*}
+            \Psi_{\oc B}(\Foc{\sharp B}) &= \{B\}^\perp \cap I \\
+            &\subseteq \Foc{\oc B} &&\text{by the $\oc$ rule}
+        \end{align*}
     \end{itemize}
 \end{proof}
 
 \begin{lemma}
     \label{inner_in_foc}
-    For any formula $A$, $\sem{A} \subseteq \Foc(A)^\biperp$.
+    For any formula $A$, $\sem{A} \subseteq \Foc{A}^\biperp$.
 \end{lemma}
 \begin{proof}
     By induction:
     \begin{itemize}
         \item If $A$ is a positive formula with main negative subformulas $A_1, \dots, A_\size{A}$, then \begin{align*}
             \sem{A}
-            &\subseteq \Psi_A(\sem{A_1}, \dots, \sem{A_\size{A}})^\biperp &&\text{by \cref{positivity}} \\
-            &\subseteq \Psi_A(\Foc(A_1)^\biperp, \dots, \Foc(A_\size{A})^\biperp)^\biperp &&\text{by the induction hypothesis} \\
-            &= \Psi_A(\Foc(A_1), \dots, \Foc(A_\size{A}))^\biperp &&\text{by positivity} \\
-            &\subseteq \Foc(A)^\biperp &&\text{by \cref{positive_phase}}
+            &= \Psi_A(\sem{A_1}, \dots, \sem{A_\size{A}})^\biperp &&\text{by \cref{positivity}} \\
+            &\subseteq \Psi_A(\Foc{A_1}^\biperp, \dots, \Foc{A_\size{A}}^\biperp)^\biperp &&\text{by the induction hypothesis} \\
+            &= \Psi_A(\Foc{A_1}, \dots, \Foc{A_\size{A}})^\biperp &&\text{by positivity} \\
+            &\subseteq \Foc{A}^\biperp &&\text{by \cref{positive_phase}}
         \end{align*}
         \item If $A = \sharp B$, then by the induction hypothesis
-        $\sem{\sharp B} = \sem{\oc B} = (\sem{B} \cap I)^\biperp \subseteq (\Foc(B)^\biperp \cap I)^\biperp \subseteq (\{B\}^\perp \cap I)^\biperp = \Foc(\sharp B)^\biperp$.
+        $\sem{\sharp B} = \sem{\oc B} = (\sem{B} \cap I)^\biperp \subseteq (\Foc{B}^\biperp \cap I)^\biperp \subseteq (\{B\}^\perp \cap I)^\biperp = \Foc{\sharp B}^\biperp$.
 
         Otherwise, it is enough to prove $\sem{A} \subseteq \{A\}^\perp$.
         \item If $A = X^\perp$, then $\sem{X^\perp} = \sem{X}^\perp = \{X^\perp\}^\triperp = \{X^\perp\}^\perp$.
@@ -485,7 +525,7 @@ Let $\Psi_A$ be an $\size{A}$-ary positive operator on $\mathcal P(M)$ defined b
         hence $\{B\}^\perp \cap \{C\}^\perp \subseteq \{B \with C\}^\perp$, from which the result follows.
         \item If $A = B \parr C$, let $\Gamma \in \sem{B \parr C} = (\sem{B}^\perp \cdot \sem{C}^\perp)^\perp$.
         By the induction hypothesis, $\sem{B} \subseteq \{B\}^\perp$, hence $B \in \{B\}^\biperp \subseteq \sem{B}^\perp$,
-        and similarly $C \in \sem{C}^\perp$, therefore $\vdash B, C, \Gamma;$\;. Moreover,
+        and similarly $C \in \sem{C}^\perp$, therefore $\vdash \Gamma, B, C;$\;. Moreover,
         $$\begin{prooftree}
             \hypo{\vdash \Gamma, B, C;}
             \infer1[$\parr$]{\vdash \Gamma, B \parr C;}
@@ -494,19 +534,19 @@ Let $\Psi_A$ be an $\size{A}$-ary positive operator on $\mathcal P(M)$ defined b
         \item If $A = \top$, we have $\sem{\top} = M = \{\top\}^\perp$ by the $\top$ rule.
         \item If $A = \bot$, we have $\sem{\bot} = \bot \subseteq \{\bot\}^\perp$ by the $\bot$ rule.
         \item If $A = \wn B$, then $\sem{\wn B} = (\sem{B}^\perp \cap I)^\perp$.
-        By the induction hypothesis, $\sem{B} \subseteq \Foc(B)^\biperp$, hence
-        $(\sem{B}^\perp \cap I)^\perp \subseteq (\Foc(B)^\perp \cap I)^\perp$.
-        Moreover, $\wn B \in \Foc(B)^\perp \cap I$ because of the $\wn d$ rule, therefore
-        $(\Foc(B)^\perp \cap I)^\perp \subseteq \{\wn B\}^\perp$, from which the result follows.
+        By the induction hypothesis, $\sem{B} \subseteq \Foc{B}^\biperp$, hence
+        $(\sem{B}^\perp \cap I)^\perp \subseteq (\Foc{B}^\perp \cap I)^\perp$.
+        Moreover, $\wn B \in \Foc{B}^\perp \cap I$ because of the $\wn d$ rule, therefore
+        $(\Foc{B}^\perp \cap I)^\perp \subseteq \{\wn B\}^\perp$, from which the result follows.
     \end{itemize}
 \end{proof}
 
 \begin{corollary}
     \label{inner_in_outer}
-    For any multiset of formulas $\Gamma = A_1, \dots, A_n$, $\sem{\Gamma} \subseteq \{\Gamma\}^\perp$.
+    For any context $\Gamma = A_1, \dots, A_n$, $\sem{\Gamma} \subseteq \{\Gamma\}^\perp$.
 \end{corollary}
 \begin{proof}
-    By \cref{inner_in_foc}, we have $\sem{A_i} \subseteq \Foc(A_i)^\biperp \subseteq \{A_i\}^\perp$
+    By \cref{inner_in_foc}, we have $\sem{A_i} \subseteq \Foc{A_i}^\biperp \subseteq \{A_i\}^\perp$
     for all $1 \le i \le n$, hence $\{A_i\} \subseteq \{A_i\}^\biperp \subseteq \sem{A_i}^\perp$, therefore
     $\{\Gamma\} = \{A_1\} \cdots \{A_n\} \subseteq \sem{A_1}^\perp \cdots \sem{A_n}^\perp$.
 
@@ -520,6 +560,20 @@ Let $\Psi_A$ be an $\size{A}$-ary positive operator on $\mathcal P(M)$ defined b
     We have $\emptyset \in \sem{\Gamma}$, hence $\emptyset \in \{\Gamma\}^\perp$ by
     \cref{inner_in_outer}, therefore there is a cut-free proof of $\vdash \Gamma;$ in $\LLfoc$.
 \end{proof}
+
+Combining this with the soundness theorem and \cite[proposition 1]{laurent}, we get:
+\begin{theorem}[Weak focalisation]
+    If a sequent is provable in $\LL$, then it has a weakly focalised proof.
+\end{theorem}
+
+\section{Conclusion}
+
+We gave a semantic proof of the weak focalisation property. It seems possible to adapt the proof to use $\LLFoc$
+instead of $\LLfoc$ (and thus get the full focalisation property) by considering the submonoid of contexts of the shape
+$\mathcal P, \wn\Gamma, \mathcal X^\perp$, but I couldn't make it work.
+Another possible future direction would be to extend this to first-order linear logic.
+
+I thank Alexis for his supervision.
 
 \printbibliography
 
